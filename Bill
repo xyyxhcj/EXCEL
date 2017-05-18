@@ -1,0 +1,138 @@
+Sub bill()
+'每周账单打印模板，格式顺序'购货单位,日期,审核标志,单据编号,产品长代码,产品名称,实发数量,业务员,开票数量,销售单价,销售金额
+' 计算相同客户名单据金额，总额
+ Range("L2").Select
+    ActiveCell.FormulaR1C1 = "=IF(RC[-11]="""",RC[-1]+R[-1]C,RC[-1])"
+    Range("L2").Select
+    Application.Goto Reference:="R2C12:R4999C12"
+    Selection.FormulaR1C1 = "=IF(RC[-11]="""",RC[-1]+R[-1]C,RC[-1])"
+    Range("M2").Select
+    ActiveCell.FormulaR1C1 = _
+        "=IF(RC[-12]="""","""",IF(ISNA(INDEX(RC[-1]:R[460]C[-1],MATCH(""Y"",R[1]C[-10]:R[460]C[-10],0))),INDEX(RC[-1]:R[460]C[-1],MATCH(""合计:"",R[1]C[-12]:R[460]C[-12],0)),INDEX(RC[-1]:R[460]C[-1],MATCH(""Y"",R[1]C[-10]:R[460]C[-10],0))))"
+    Range("M2").Select
+    Selection.AutoFill Destination:=Range("M2:M4999")
+    Range("M2:M4999").Select
+    Range("N2").Select
+    ActiveCell.FormulaR1C1 = _
+        "=IF(COUNTIFS(R2C1:RC[-13],RC[-13])=1,SUMIFS(C[-1],C[-13],RC[-13]),"""")"
+    Range("N2").Select
+    Selection.AutoFill Destination:=Range("N2:N4999")
+    Range("N2:N4999").Select
+    Columns("L:N").Select
+    Selection.Copy
+    Range("L1").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+    Columns("B:B").Select
+    Selection.SpecialCells(xlCellTypeBlanks).Select
+    Application.CutCopyMode = False
+    Selection.EntireRow.Delete
+  
+' 相同客户名分页
+Dim LastRow As Long
+Dim iR As Long
+Dim iL As Long
+ LastRow = Range("A65536").End(xlUp).Row
+ iL = 2
+ For iR = 2 To LastRow
+If Cells(iR, 1) <> Cells(iR + 1, 1) Then 'Or iL = 21
+ActiveWindow.SelectedSheets.HPageBreaks.Add Before:=Rows(iR + 1)
+iL = 1
+End If
+ iL = iL + 1
+Next iR
+
+' 调整字体和删除多余列
+Range("O2").Select
+    ActiveCell.FormulaR1C1 = "=IF(COUNTIFS(R2C1:RC[-14],RC[-14])=1,RC[-14],"""")"
+    Range("O2").Select
+    Selection.AutoFill Destination:=Range("O2:O2999")
+    Range("O2:O2999").Select
+    Selection.Copy
+    Range("A2").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+    Columns("B:B").Select
+    Selection.SpecialCells(xlCellTypeBlanks).Select
+    Application.CutCopyMode = False
+    Selection.EntireRow.Delete
+    Rows("1:1").Select
+    Selection.Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+    Columns("C:C").Select
+    Selection.Delete Shift:=xlToLeft
+    Columns("D:K").Select
+    Selection.Delete Shift:=xlToLeft
+    Columns("F:F").Select
+    Selection.Delete Shift:=xlToLeft
+
+    Sheets("字体格式").Select
+    Cells.Select
+    Selection.Copy
+    Sheets("每周账单").Select
+    Range("A1").Select
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
+        SkipBlanks:=False, Transpose:=False
+    Sheets("字体格式").Select
+    Rows("1:2").Select
+    Application.CutCopyMode = False
+    Selection.Copy
+    Sheets("每周账单").Select
+    Range("A1:E1").Select
+    ActiveSheet.Paste
+
+' 调整打印边距
+
+    Application.PrintCommunication = False
+    With ActiveSheet.PageSetup
+        .PrintTitleRows = "$1:$2"
+        .PrintTitleColumns = ""
+    End With
+    Application.PrintCommunication = True
+    ActiveSheet.PageSetup.PrintArea = ""
+    Application.PrintCommunication = False
+    With ActiveSheet.PageSetup
+        .LeftHeader = ""
+        .CenterHeader = ""
+        .RightHeader = "&D&[  &T"
+        .LeftFooter = ""
+        .CenterFooter = ""
+        .RightFooter = ""
+        .LeftMargin = Application.InchesToPoints(0.433070866141732)
+        .RightMargin = Application.InchesToPoints(0.433070866141732)
+        .TopMargin = Application.InchesToPoints(0.590551181102362)
+        .BottomMargin = Application.InchesToPoints(0.590551181102362)
+        .HeaderMargin = Application.InchesToPoints(0.31496062992126)
+        .FooterMargin = Application.InchesToPoints(0.31496062992126)
+        .PrintHeadings = False
+        .PrintGridlines = False
+        .PrintComments = xlPrintNoComments
+        .CenterHorizontally = False
+        .CenterVertically = False
+        .Orientation = xlPortrait
+        .Draft = False
+        .PaperSize = xlPaperA4
+        .FirstPageNumber = xlAutomatic
+        .Order = xlDownThenOver
+        .BlackAndWhite = False
+        .Zoom = 100
+        .PrintErrors = xlPrintErrorsDisplayed
+        .OddAndEvenPagesHeaderFooter = False
+        .DifferentFirstPageHeaderFooter = False
+        .ScaleWithDocHeaderFooter = True
+        .AlignMarginsHeaderFooter = True
+        .EvenPage.LeftHeader.Text = ""
+        .EvenPage.CenterHeader.Text = ""
+        .EvenPage.RightHeader.Text = ""
+        .EvenPage.LeftFooter.Text = ""
+        .EvenPage.CenterFooter.Text = ""
+        .EvenPage.RightFooter.Text = ""
+        .FirstPage.LeftHeader.Text = ""
+        .FirstPage.CenterHeader.Text = ""
+        .FirstPage.RightHeader.Text = ""
+        .FirstPage.LeftFooter.Text = ""
+        .FirstPage.CenterFooter.Text = ""
+        .FirstPage.RightFooter.Text = ""
+    End With
+    Application.PrintCommunication = True
+End Sub
+
