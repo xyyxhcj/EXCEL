@@ -1,5 +1,17 @@
 Sub bill()
 '每周账单打印模板，格式顺序'购货单位,日期,审核标志,单据编号,产品长代码,产品名称,实发数量,业务员,开票数量,销售单价,销售金额
+' 合并收款条件
+    Columns("L:O").Select
+    Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    Range("L2").Select
+    ActiveCell.FormulaR1C1 = "=IF(COUNTIF(R2C1:RC[-11],RC[-11])=1,RC[4],"""")"
+    Range("L2").Select
+    Selection.AutoFill Destination:=Range("L2:L222")
+    Range("L2:L222").Select
+    Selection.Copy
+    Range("P2").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
 ' 计算相同客户名单据金额，总额
  Range("L2").Select
     ActiveCell.FormulaR1C1 = "=IF(RC[-11]="""",RC[-1]+R[-1]C,RC[-1])"
